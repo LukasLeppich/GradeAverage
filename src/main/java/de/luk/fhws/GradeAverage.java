@@ -72,9 +72,7 @@ public class GradeAverage {
 		nameValuePairs.add(new BasicNameValuePair("password", password));
 		login.setEntity(new UrlEncodedFormEntity(nameValuePairs));
 		HttpResponse response = getClient().execute(login);
-		if (response.getStatusLine().getStatusCode() != 200) {
-			return false;
-		}
+		// TODO Check login		
 		Header[] setCookie = response.getHeaders("Set-Cookie");
 		if (setCookie.length > 0) {
 			phpSession = setCookie[0].getValue().split(";")[0];
