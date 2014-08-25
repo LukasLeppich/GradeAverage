@@ -11,11 +11,11 @@ public class Lecture {
 	}
 	public Lecture(String name, String number, float grade, float cp, boolean hasGrade) {
 		super();
-		this.name = name;
-		this.number = number;
-		this.grade = grade;		
-		this.cp = cp;
-		this.hasGrade = hasGrade;
+		setName(name);
+		setNumber(number);
+		setGrade(grade);
+		setCp(cp);
+		setHasGrade(hasGrade);
 	}
 	public String getName() {
 		return name;
@@ -40,9 +40,12 @@ public class Lecture {
 		return cp;
 	}
 	public void setCp(float cp) {
+		if(cp == 2.0f){
+			cp = 2.5f;
+		}
 		this.cp = cp;
 	}
-	public boolean isHasGrade() {
+	public boolean hasGrade() {
 		return hasGrade;
 	}
 	public void setHasGrade(boolean hasGrade) {

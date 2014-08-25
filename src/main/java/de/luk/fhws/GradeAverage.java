@@ -72,7 +72,7 @@ public class GradeAverage {
 		nameValuePairs.add(new BasicNameValuePair("password", password));
 		login.setEntity(new UrlEncodedFormEntity(nameValuePairs));
 		HttpResponse response = getClient().execute(login);
-		// TODO Check login		
+		// TODO Check login
 		Header[] setCookie = response.getHeaders("Set-Cookie");
 		if (setCookie.length > 0) {
 			phpSession = setCookie[0].getValue().split(";")[0];
@@ -118,7 +118,7 @@ public class GradeAverage {
 			sb.append("\t");
 			sb.append(lecture.getCp());
 			sb.append("\t");
-			if (lecture.isHasGrade()) {
+			if (lecture.hasGrade()) {
 				sb.append(lecture.getGrade());
 			} else {
 				sb.append("ME");
@@ -131,18 +131,46 @@ public class GradeAverage {
 	}
 
 	protected void printGradeAverage(List<Lecture> lectures) {
-		System.out.println("Durchschnittsnote: ".concat(Double.toString(getGradeAverage(lectures))));
+		System.out.println("Durchschnittsnote: ".concat(Double
+				.toString(getGradeAverage(lectures))));
 	}
 
 	protected double getGradeAverage(List<Lecture> lectures) {
 		double cp = 0;
 		double grade = 0;
-		for (Lecture lecture : lectures) {
-			if (lecture.isHasGrade()) {
+		for (Lecture lecture : removeAdditionalAWPF(lectures)) {
+			if (lecture.hasGrade()) {
 				cp += lecture.getCp();
 				grade += lecture.getGrade() * lecture.getCp();
 			}
 		}
 		return grade / cp;
+	}
+
+	protected List<Lecture> removeAdditionalAWPF(List<Lecture> lectures) {
+		List<Lecture> newLectures = new ArrayList<>(lectures.size());
+		Lecture firstAWPF = null;
+		Lecture secondAWPF = null;
+		for (Lecture lecture : lectures) {
+			if (lecture.getCp() == 2.5f && lecture.hasGrade()) {
+				if (firstAWPF == null
+						|| firstAWPF.getGrade() > lecture.getGrade()) {
+					secondAWPF = firstAWPF;
+					firstAWPF = lecture;
+				} else if (secondAWPF == null
+						|| secondAWPF.getGrade() > lecture.getGrade()) {
+					secondAWPF = lecture;
+				}
+			} else {
+				newLectures.add(lecture);
+			}
+		}
+		if (firstAWPF != null) {
+			newLectures.add(firstAWPF);
+		}
+		if (secondAWPF != null) {
+			newLectures.add(secondAWPF);
+		}
+		return newLectures;
 	}
 }
