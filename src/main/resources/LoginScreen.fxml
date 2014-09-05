@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import java.lang.*?>
+<?import java.net.*?>
+<?import javafx.geometry.*?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.layout.VBox?>
+
+<VBox prefWidth="258.0" spacing="10.0" xmlns:fx="http://javafx.com/fxml/1" xmlns="http://javafx.com/javafx/2.2" fx:controller="de.luk.fhws.gui.LoginScreen">
+  <children>
+    <Label styleClass="login-label" text="K-Nummer:" />
+    <TextField fx:id="kNumber" prefWidth="-1.0" promptText="K-Nummer" styleClass="login-input" />
+    <Label styleClass="login-label" text="Passwort:" />
+    <PasswordField fx:id="password" onAction="#login" prefWidth="-1.0" promptText="Passwort" styleClass="login-input" />
+    <Button fx:id="login" onAction="#login" styleClass="login-button" text="Anmelden" />
+  </children>
+  <padding>
+    <Insets bottom="15.0" left="15.0" right="15.0" top="15.0" />
+  </padding>
+  <stylesheets>
+    <URL value="@style.css" />
+  </stylesheets>
+</VBox>

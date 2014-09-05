@@ -1,0 +1,17 @@
+@CHARSET "UTF-8";
+
+.login-label  {
+	-fx-font-size: 20.0px;
+}
+.login-input {
+	-fx-font-size: 24.0px;
+}
+.login-button {
+	-fx-font-size: 24.0px;
+}
+.main-logout{
+	-fx-font-size: 20.0px;
+}
+.text-info{
+	-fx-font-size: 20.0px;
+}
