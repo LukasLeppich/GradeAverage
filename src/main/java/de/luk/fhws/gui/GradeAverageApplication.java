@@ -43,5 +43,4 @@ public class GradeAverageApplication extends Application {
 	public static Stage getPrimaryStage() {
 		return instance.primaryStage;
 	}
-
 }
