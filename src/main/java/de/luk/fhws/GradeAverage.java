@@ -1,16 +1,20 @@
 package de.luk.fhws;
 
+import java.io.BufferedReader;
 import java.io.IOException;
+import java.io.InputStreamReader;
+import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.function.Consumer;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import javafx.application.Application;
 
-import org.apache.commons.io.IOUtils;
 import org.apache.http.Header;
 import org.apache.http.HttpResponse;
 import org.apache.http.NameValuePair;
@@ -125,14 +129,17 @@ public class GradeAverage {
 		HttpGet grades = new HttpGet(gradesURL);
 		grades.addHeader("Cookie", phpSession);
 		HttpResponse response = getClient().execute(grades);
-		return IOUtils.toString(response.getEntity().getContent());
+		BufferedReader reader = new BufferedReader(new InputStreamReader(
+				response.getEntity().getContent(), Charset.forName("utf-8")));
+		return reader.lines().collect(
+				Collectors.joining(System.lineSeparator()));
 	}
 
 	public String getName() {
 		if (document == null) {
 			throw new NullPointerException("Document is null");
 		}
-		Elements name = document.select(".page > p > strong");
+		Elements name = document.select(".basic-info strong");
 		if (name.size() == 1) {
 			return name.get(0).html();
 		} else {
@@ -145,27 +152,27 @@ public class GradeAverage {
 			throw new NullPointerException("Document is null");
 		}
 		List<Lecture> lectures = new ArrayList<>();
-		Element table = document.getElementById("exams");
-		for (Element tr : table.getElementsByTag("tr")) {
-			Elements tds = tr.getElementsByTag("td");
-			if (tds.size() > 0) {
-				Lecture lecture = new Lecture();
-				lecture.setNumber(tds.get(0).html());
-				lecture.setName(tds.get(1).html());
-				lecture.setCp(Float.parseFloat(tds.get(2).html()
-						.replaceAll(",", ".")));
 
-				String year = tds.get(3).html();
-				lecture.setYear(Integer.parseInt(year.substring(0, 4)));
-				lecture.setWs(year.substring(4).equals("WS"));
-				if (tds.get(4).html().equalsIgnoreCase("ME")) {
-					lecture.setHasGrade(false);
-				} else {
-					lecture.setGrade(Float.parseFloat(tds.get(4).html()
-							.replaceAll(",", ".")));
-				}
-				lectures.add(lecture);
+		for (Element div : document.select(".tile .panel-group .panel-default")) {
+			Element a = div.select(".panel-heading a").get(0);
+			Element list = div.select(".list-unstyled").get(0);
+
+			Lecture lecture = new Lecture();
+			lecture.setNumber(list.select("strong").get(0).text());
+			lecture.setCp(Float.parseFloat(list.select("strong").get(1).text()
+					.replaceAll(",", ".")));
+
+			String grade = a.select("span").text().trim();
+			lecture.setName(a.text().substring(0).trim().replace(grade, ""));
+			if (grade.equals("ME")) {
+				lecture.setHasGrade(false);
+			} else {
+				lecture.setGrade(Float.parseFloat(grade.replaceAll(",", ".")));
 			}
+			String time = a.attr("data-time");
+			lecture.setYear(Integer.parseInt(time.substring(0, 4)));
+			lecture.setWs(time.substring(4).equals("WS"));
+			lectures.add(lecture);
 		}
 		return lectures;
 	}
@@ -214,29 +221,12 @@ public class GradeAverage {
 	}
 
 	protected static List<Lecture> removeAdditionalAWPF(List<Lecture> lectures) {
-		List<Lecture> newLectures = new ArrayList<>(lectures.size());
-		Lecture firstAWPF = null;
-		Lecture secondAWPF = null;
-		for (Lecture lecture : lectures) {
-			if (lecture.isAWPF()) {
-				if (firstAWPF == null
-						|| firstAWPF.getGrade() > lecture.getGrade()) {
-					secondAWPF = firstAWPF;
-					firstAWPF = lecture;
-				} else if (secondAWPF == null
-						|| secondAWPF.getGrade() > lecture.getGrade()) {
-					secondAWPF = lecture;
-				}
-			} else {
-				newLectures.add(lecture);
-			}
-		}
-		if (firstAWPF != null) {
-			newLectures.add(firstAWPF);
-		}
-		if (secondAWPF != null) {
-			newLectures.add(secondAWPF);
-		}
-		return newLectures;
+		return Stream.concat(
+				lectures.stream().filter(lecture -> !lecture.isAWPF()),
+				lectures.stream()
+						.filter(lecture -> lecture.isAWPF())
+						.sorted((a, b) -> a.getGrade() > b.getGrade() ? 1 : a
+								.getGrade() < b.getGrade() ? -1 : 0).limit(2))
+				.collect(Collectors.toList());
 	}
 }

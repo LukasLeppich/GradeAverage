@@ -39,8 +39,8 @@ public class GradeAverageApplication extends Application {
 		instance.primaryStage.setTitle(title);
 		instance.primaryStage.show();
 	}
-	
-	public static Stage getPrimaryStage(){
+
+	public static Stage getPrimaryStage() {
 		return instance.primaryStage;
 	}
 
