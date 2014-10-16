@@ -33,7 +33,7 @@ import org.jsoup.select.Elements;
 import de.luk.fhws.gui.GradeAverageApplication;
 
 public class GradeAverage {
-	protected final String loginURL = "https://studentenportal.fhws.de/login/run";
+	protected final String loginURL = "https://studentenportal.fhws.de/login/authenticate";
 	protected final String gradesURL = "https://studentenportal.fhws.de/grades";
 
 	protected String phpSession;
@@ -94,7 +94,7 @@ public class GradeAverage {
 		login.setEntity(new UrlEncodedFormEntity(nameValuePairs));
 		HttpResponse response = getClient().execute(login);
 		Header[] location = response.getHeaders("location");
-		if (location[0].getValue().endsWith("login")) {
+		if (location.length == 0 || location[0].getValue().endsWith("login")) {
 			return false;
 		}
 		Header[] setCookie = response.getHeaders("Set-Cookie");
