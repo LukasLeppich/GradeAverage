@@ -160,14 +160,14 @@ public class GradeAverage {
 			Lecture lecture = new Lecture();
 			lecture.setNumber(list.select("strong").get(0).text());
 			lecture.setCp(Float.parseFloat(list.select("strong").get(1).text()
-					.replaceAll(",", ".")));
+					.replaceAll(",", ".").replaceAll("\\*", "")));
 
 			String grade = a.select("span").text().trim();
 			lecture.setName(a.text().substring(0).trim().replace(grade, ""));
 			if (grade.equals("ME")) {
 				lecture.setHasGrade(false);
 			} else {
-				lecture.setGrade(Float.parseFloat(grade.replaceAll(",", ".")));
+				lecture.setGrade(Float.parseFloat(grade.replaceAll(",", ".").replaceAll("\\*", "")));
 			}
 			String time = a.attr("data-time");
 			lecture.setYear(Integer.parseInt(time.substring(0, 4)));
